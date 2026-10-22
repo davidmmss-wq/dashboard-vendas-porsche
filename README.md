@@ -4,7 +4,7 @@ Dashboard interativa em arquivo único (HTML), que responde a três perguntas
 de negócio sobre 100 vendas da Porsche. Publicada no GitHub Pages.
 
 **Acesse a dashboard:** [cole aqui o link do formato
-https://seu-usuario.github.io/dashboard-vendas-porsche — ele só existe
+https://davidmmss-wq.github.io/dashboard-vendas-porsche — ele só existe
 depois de ativar as Páginas]
 
 ## Perguntas de negócio escolhidas
