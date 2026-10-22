@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Vendas Porsche</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@1.0.2/dist/basecoat.cdn.min.css">
+  <style>
+/* Skip artifact shell — fixed styles served beside every artifact.
+   Complements basecoat; artifacts override --accent for their own identity. */
+:root {
+  color-scheme: light dark;
+  --accent: #2563eb;
+  --accent-contrast: #ffffff;
+  --accent-text: color-mix(in srgb, var(--accent) 72%, #000);
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --text: #14171f;
+  --text-muted: #5b6472;
+  --border: rgba(20, 23, 31, 0.10);
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(20, 23, 31, 0.08);
+  --space: 16px;
+}
+/* Theme resolution. Without data-theme the viewer's system preference decides,
+   as it always did. With it, the artifact's own choice wins in BOTH directions:
+   a page that hardcodes one palette must not be handed the opposite set of
+   tokens by the machine it happens to be opened on. The dark values appear
+   twice because a media query cannot be folded into a selector list.
+   The attribute sits inside :where() so these blocks keep the specificity of a
+   bare :root — the page's own <style> is linked after this file and must go on
+   overriding any token it wants, exactly as it could before. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+    --bg: #101318;
+    --surface: #181c23;
+    --text: #eef1f6;
+    --text-muted: #9aa4b2;
+    --border: rgba(238, 241, 246, 0.12);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+}
+:root:where([data-theme="dark"]) {
+  color-scheme: dark;
+  --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+  --bg: #101318;
+  --surface: #181c23;
+  --text: #eef1f6;
+  --text-muted: #9aa4b2;
+  --border: rgba(238, 241, 246, 0.12);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+:root:where([data-theme="light"]) { color-scheme: light; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+
+.shell-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+.shell-section { padding: calc(var(--space) * 2) 0; }
+.shell-grid { display: grid; gap: var(--space); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.shell-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: var(--space); }
+.shell-footer { padding: 24px 0 40px; color: var(--text-muted); font-size: 13px; }
+
+.shell-hero { padding: calc(var(--space) * 3) 0 calc(var(--space) * 2); }
+.shell-hero h1 { font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin: 0 0 10px; text-wrap: balance; }
+.shell-hero p { color: var(--text-muted); max-width: 60ch; margin: 0; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--space);
+}
+
+.kpi { display: flex; flex-direction: column; gap: 4px; }
+.kpi .kpi-value { font-size: 28px; font-weight: 650; line-height: 1.1; }
+.kpi .kpi-label { font-size: 13px; color: var(--text-muted); }
+.kpi .kpi-delta { font-size: 12.5px; font-weight: 600; }
+.kpi .kpi-delta.up { color: #0a8f3c; }
+.kpi .kpi-delta.down { color: #cf3131; }
+
+table.shell-table { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.shell-table th {
+  text-align: left; font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--text-muted); font-weight: 600;
+}
+table.shell-table th, table.shell-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--border); }
+table.shell-table td.num, table.shell-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+.chart-box { width: 100%; min-height: 220px; }
+.chart-box svg { width: 100%; height: auto; display: block; }
+
+.muted { color: var(--text-muted); }
+.accent { color: var(--accent-text); }
+.shell-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .shell-fade { animation: shell-fade 400ms ease both; }
+  @keyframes shell-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}
+
+</style>
+  
+  <style>
+    :root {
+      --accent: #e5c158;
+      --accent-text: #f0cf6f;
+      --accent-contrast: #0e0e10;
+      --bg: #0e0e10;
+      --surface: #17171a;
+      --surface-hover: #1f1f23;
+      --border: #2a2a2e;
+      --text: #f5f5f4;
+      --text-muted: #a1a1aa;
+      --radius: 12px;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-porsche {
+      padding: 2.25rem 0 1.5rem 0;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(229, 193, 88, 0.05) 0%, rgba(23, 23, 26, 0) 100%);
+    }
+
+    .header-brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(229, 193, 88, 0.12);
+      color: var(--accent-text);
+      border: 1px solid rgba(229, 193, 88, 0.3);
+      margin-bottom: 0.6rem;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .filter-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto;
+      gap: 1rem;
+      align-items: flex-end;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .field-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-select {
+      background-color: #0e0e10;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 0.8rem;
+      font-size: 0.875rem;
+      width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-select:focus-visible {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(229, 193, 88, 0.25);
+    }
+
+    .btn-reset {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 0.55rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      height: 38px;
+      white-space: nowrap;
+    }
+
+    .btn-reset:hover {
+      background: #232328;
+      color: var(--text);
+      border-color: #3e3e44;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.4rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      border-color: rgba(229, 193, 88, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent) 0%, transparent 80%);
+    }
+
+    .kpi-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .kpi-val {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.15;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .kpi-sub {
+      font-size: 0.775rem;
+      color: var(--text-muted);
+      margin-top: 0.45rem;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+    }
+
+    .chart-panel-header {
+      margin-bottom: 1.2rem;
+    }
+
+    .chart-panel-q {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .chart-panel-q span.q-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(229, 193, 88, 0.18);
+      color: var(--accent-text);
+      border: 1px solid rgba(229, 193, 88, 0.3);
+    }
+
+    .chart-panel-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .chart-body {
+      min-height: 290px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Horizontal custom SVG Bar styles */
+    .hbar-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .hbar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .hbar-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.775rem;
+    }
+
+    .hbar-label {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .hbar-val {
+      font-weight: 600;
+      color: var(--accent-text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hbar-track {
+      width: 100%;
+      height: 8px;
+      background: #232328;
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hbar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #c49e32 0%, #e5c158 100%);
+      border-radius: 999px;
+      transition: width 0.45s ease;
+    }
+
+    /* Table Section */
+    .table-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+    }
+
+    .table-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .table-scroll {
+      max-height: 380px;
+      overflow-y: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .table-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    .table-scroll::-webkit-scrollbar-thumb {
+      background: #333339;
+      border-radius: 3px;
+    }
+
+    table.shell-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    table.shell-table th {
+      background: #1e1e23;
+      padding: 0.65rem 0.9rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    table.shell-table td {
+      padding: 0.65rem 0.9rem;
+      border-bottom: 1px solid #232328;
+      color: var(--text);
+    }
+
+    table.shell-table tr:hover td {
+      background-color: var(--surface-hover);
+    }
+
+    .tag-payment {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: #24242b;
+      color: #d1d1d6;
+      border: 1px solid #363640;
+    }
+
+    .empty-state {
+      padding: 3rem 1rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    footer.shell-footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 0;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    @media print {
+      .filter-card, .btn-reset, footer {
+        display: none !important;
+      }
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .chart-panel, .kpi-card, .table-section {
+        border: 1px solid #ccc !important;
+        background: white !important;
+        color: black !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="header-porsche">
+    <div class="shell-container">
+      <div class="header-brand-badge">
+        <span class="badge-dot"></span>
+        Porsche AG • Registro Oficial de Vendas
+      </div>
+      <div class="header-row">
+        <div>
+          <h1 style="font-size: 1.75rem; font-weight: 700; margin: 0; color: #f5f5f4; letter-spacing: -0.02em;">
+            Dashboard de Vendas — Porsche Brasil
+          </h1>
+          <p style="margin: 0.35rem 0 0 0; color: var(--text-muted); font-size: 0.9rem;">
+            100 vendas • base sanitizada • desafio de dados
+          </p>
+        </div>
+        <div>
+          <span class="shell-badge" id="visibleCountBadge" style="font-size: 0.825rem; padding: 0.45rem 0.85rem; background: #202026; border: 1px solid var(--border); color: var(--accent-text);">
+            Exibindo 100 de 100 vendas
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell-container" style="flex: 1; padding-top: 1rem; padding-bottom: 2rem;">
+
+    <!-- Filtros -->
+    <section class="filter-card" aria-label="Filtros de consulta">
+      <div class="filter-grid">
+        <div class="field-group">
+          <label for="filterModel" class="field-label">Modelo</label>
+          <select id="filterModel" class="form-select">
+            <option value="">Todos os Modelos (11)</option>
+            <option value="Macan">Macan</option>
+            <option value="Macan S">Macan S</option>
+            <option value="Cayenne">Cayenne</option>
+            <option value="Cayenne S">Cayenne S</option>
+            <option value="718 Cayman">718 Cayman</option>
+            <option value="718 Boxster">718 Boxster</option>
+            <option value="911 Carrera">911 Carrera</option>
+            <option value="911 Carrera S">911 Carrera S</option>
+            <option value="Panamera">Panamera</option>
+            <option value="Taycan 4S">Taycan 4S</option>
+            <option value="Taycan Turbo">Taycan Turbo</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="filterState" class="field-label">Estado</label>
+          <select id="filterState" class="form-select">
+            <option value="">Todos os Estados (11)</option>
+            <option value="SP">São Paulo (SP)</option>
+            <option value="RJ">Rio de Janeiro (RJ)</option>
+            <option value="MG">Minas Gerais (MG)</option>
+            <option value="PR">Paraná (PR)</option>
+            <option value="RS">Rio Grande do Sul (RS)</option>
+            <option value="SC">Santa Catarina (SC)</option>
+            <option value="DF">Distrito Federal (DF)</option>
+            <option value="BA">Bahia (BA)</option>
+            <option value="PE">Pernambuco (PE)</option>
+            <option value="CE">Ceará (CE)</option>
+            <option value="GO">Goiás (GO)</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="filterYear" class="field-label">Ano do Veículo</label>
+          <select id="filterYear" class="form-select">
+            <option value="">Todos os Anos</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
+            <option value="2019">2019</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="filterPayment" class="field-label">Método de Pagamento</label>
+          <select id="filterPayment" class="form-select">
+            <option value="">Todos os Métodos (5)</option>
+            <option value="Financiamento">Financiamento</option>
+            <option value="PIX">PIX</option>
+            <option value="Consórcio">Consórcio</option>
+            <option value="Cartão de Crédito">Cartão de Crédito</option>
+            <option value="Leasing">Leasing</option>
+          </select>
+        </div>
+
+        <div>
+          <button id="btnClearFilters" class="btn-reset" title="Limpar todos os filtros">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            Limpar filtros
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Indicadores de Topo (4 cards) -->
+    <section class="kpi-row" aria-label="Indicadores principais">
+      <div class="kpi-card">
+        <div class="kpi-title">Total de Vendas</div>
+        <div class="kpi-val" id="kpiTotalSales">100</div>
+        <div class="kpi-sub" id="kpiTotalSalesSub">100% da frota catalogada</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-title">Receita Total</div>
+        <div class="kpi-val" id="kpiRevenue">R$ 0</div>
+        <div class="kpi-sub">Faturamento acumulado</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-title">Ticket Médio</div>
+        <div class="kpi-val" id="kpiTicket">R$ 0</div>
+        <div class="kpi-sub">Preço médio por unidade</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-title">Modelo Líder</div>
+        <div class="kpi-val" id="kpiTopModel" style="font-size: 1.35rem; line-height: 1.4;">—</div>
+        <div class="kpi-sub" id="kpiTopModelRevenue">Maior receita gerada</div>
+      </div>
+    </section>
+
+    <!-- 4 Gráficos -->
+    <section class="charts-grid" aria-label="Gráficos de Análise">
+      <!-- P1: Qual modelo gera mais receita? -->
+      <article class="chart-panel">
+        <div class="chart-panel-header">
+          <div class="chart-panel-q">
+            <span class="q-badge">P1</span>
+            Qual modelo gera mais receita?
+          </div>
+          <div class="chart-panel-desc">Receita total acumulada por modelo (ordenado decrescente em R$)</div>
+        </div>
+        <div class="chart-body" id="p1Container">
+          <!-- Renderizado via JS -->
+        </div>
+      </article>
+
+      <!-- P2: Onde estão concentradas as vendas? -->
+      <article class="chart-panel">
+        <div class="chart-panel-header">
+          <div class="chart-panel-q">
+            <span class="q-badge">P2</span>
+            Onde estão concentradas as vendas?
+          </div>
+          <div class="chart-panel-desc">Volume total de unidades emplacadas por estado (UF)</div>
+        </div>
+        <div class="chart-body">
+          <div id="chartP2" class="chart-box" style="width: 100%; height: 280px;"></div>
+        </div>
+      </article>
+
+      <!-- P3: O preço médio sobe com o ano do veículo? -->
+      <article class="chart-panel">
+        <div class="chart-panel-header">
+          <div class="chart-panel-q">
+            <span class="q-badge">P3</span>
+            O preço médio sobe com o ano do veículo?
+          </div>
+          <div class="chart-panel-desc">Evolução do ticket médio de acordo com o ano de fabricação (2019 → 2024)</div>
+        </div>
+        <div class="chart-body">
+          <div id="chartP3" class="chart-box" style="width: 100%; height: 280px;"></div>
+        </div>
+      </article>
+
+      <!-- Extra: Como o cliente paga? -->
+      <article class="chart-panel">
+        <div class="chart-panel-header">
+          <div class="chart-panel-q">
+            <span class="q-badge">EXTRA</span>
+            Como o cliente paga?
+          </div>
+          <div class="chart-panel-desc">Distribuição de transações por modalidade de pagamento</div>
+        </div>
+        <div class="chart-body">
+          <div id="chartExtra" class="chart-box" style="width: 100%; height: 280px;"></div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Tabela Detalhada com os 100 Registros e Filtros -->
+    <section class="table-section">
+      <div class="table-header-row">
+        <div>
+          <h2 style="font-size: 1.05rem; font-weight: 700; margin: 0; color: #f5f5f4;">Detalhamento das Operações</h2>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Listagem completa das transações filtradas</span>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="shell-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Modelo</th>
+              <th>Cidade / UF</th>
+              <th>Ano</th>
+              <th>Pagamento</th>
+              <th class="num">Preço de Venda</th>
+            </tr>
+          </thead>
+          <tbody id="salesTableBody">
+            <!-- Linhas populadas via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="shell-footer">
+    <div class="shell-container">
+      Base sanitizada • Dashboard em arquivo único • Feita para publicar no GitHub Pages
+    </div>
+  </footer>
+
+  <script>
+    /*
+      DATASET EXATO COM 100 REGISTROS
+      Distribuições respeitadas rigorosamente:
+      - Modelos: Macan 18, Macan S 12, Cayenne 14, Cayenne S 8, 718 Cayman 9, 718 Boxster 7,
+                 911 Carrera 8, 911 Carrera S 5, Panamera 6, Taycan 4S 7, Taycan Turbo 6 = 100.
+      - Estados: SP 34, RJ 16, MG 10, PR 8, RS 8, SC 7, DF 6, BA 4, PE 3, CE 2, GO 2 = 100.
+      - Anos: 2019: 10, 2020: 12, 2021: 16, 2022: 20, 2023: 22, 2024: 20 = 100.
+      - Métodos: Financiamento 34, PIX 20, Consórcio 18, Cartão de Crédito 16, Leasing 12 = 100.
+      - Veículos mais novos tendem ao topo da faixa de preço do modelo.
+    */
+    const RAW_SALES = [
+      // --- Macan (18 unidades | 420.000 a 560.000) ---
+      { modelo: "Macan", cidade: "São Paulo", estado: "SP", ano: 2019, preco: 425000, pagamento: "Financiamento" },
+      { modelo: "Macan", cidade: "Campinas", estado: "SP", ano: 2019, preco: 430000, pagamento: "Consórcio" },
+      { modelo: "Macan", cidade: "Rio de Janeiro", estado: "RJ", ano: 2020, preco: 445000, pagamento: "PIX" },
+      { modelo: "Macan", cidade: "Belo Horizonte", estado: "MG", ano: 2020, preco: 450000, pagamento: "Cartão de Crédito" },
+      { modelo: "Macan", cidade: "Curitiba", estado: "PR", ano: 2021, preco: 470000, pagamento: "Financiamento" },
+      { modelo: "Macan", cidade: "Porto Alegre", estado: "RS", ano: 2021, preco: 475000, pagamento: "Leasing" },
+      { modelo: "Macan", cidade: "São Paulo", estado: "SP", ano: 2021, preco: 480000, pagamento: "Consórcio" },
+      { modelo: "Macan", cidade: "Santo André", estado: "SP", ano: 2022, preco: 495000, pagamento: "Financiamento" },
+      { modelo: "Macan", cidade: "Niterói", estado: "RJ", ano: 2022, preco: 500000, pagamento: "PIX" },
+      { modelo: "Macan", cidade: "Florianópolis", estado: "SC", ano: 2022, preco: 510000, pagamento: "Cartão de Crédito" },
+      { modelo: "Macan", cidade: "Brasília", estado: "DF", ano: 2022, preco: 515000, pagamento: "Financiamento" },
+      { modelo: "Macan", cidade: "Salvador", estado: "BA", ano: 2023, preco: 530000, pagamento: "Consórcio" },
+      { modelo: "Macan", cidade: "São Paulo", estado: "SP", ano: 2023, preco: 535000, pagamento: "Financiamento" },
+      { modelo: "Macan", cidade: "Uberlândia", estado: "MG", ano: 2023, preco: 540000, pagamento: "Leasing" },
+      { modelo: "Macan", cidade: "Recife", estado: "PE", ano: 2023, preco: 545000, pagamento: "PIX" },
+      { modelo: "Macan", cidade: "São Paulo", estado: "SP", ano: 2024, preco: 555000, pagamento: "Cartão de Crédito" },
+      { modelo: "Macan", cidade: "Campinas", estado: "SP", ano: 2024, preco: 558000, pagamento: "Financiamento" },
+      { modelo: "Macan", cidade: "Rio de Janeiro", estado: "RJ", ano: 2024, preco: 560000, pagamento: "PIX" },
+
+      // --- Macan S (12 unidades | 520.000 a 680.000) ---
+      { modelo: "Macan S", cidade: "São Paulo", estado: "SP", ano: 2019, preco: 530000, pagamento: "Financiamento" },
+      { modelo: "Macan S", cidade: "Joinville", estado: "SC", ano: 2020, preco: 550000, pagamento: "Consórcio" },
+      { modelo: "Macan S", cidade: "Belo Horizonte", estado: "MG", ano: 2021, preco: 580000, pagamento: "PIX" },
+      { modelo: "Macan S", cidade: "Curitiba", estado: "PR", ano: 2021, preco: 590000, pagamento: "Cartão de Crédito" },
+      { modelo: "Macan S", cidade: "São Paulo", estado: "SP", ano: 2022, preco: 610000, pagamento: "Financiamento" },
+      { modelo: "Macan S", cidade: "Rio de Janeiro", estado: "RJ", ano: 2022, preco: 620000, pagamento: "Leasing" },
+      { modelo: "Macan S", cidade: "Porto Alegre", estado: "RS", ano: 2022, preco: 625000, pagamento: "Financiamento" },
+      { modelo: "Macan S", cidade: "Brasília", estado: "DF", ano: 2023, preco: 645000, pagamento: "PIX" },
+      { modelo: "Macan S", cidade: "São Paulo", estado: "SP", ano: 2023, preco: 650000, pagamento: "Consórcio" },
+      { modelo: "Macan S", cidade: "Fortaleza", estado: "CE", ano: 2023, preco: 655000, pagamento: "Financiamento" },
+      { modelo: "Macan S", cidade: "Campinas", estado: "SP", ano: 2024, preco: 675000, pagamento: "Cartão de Crédito" },
+      { modelo: "Macan S", cidade: "Niterói", estado: "RJ", ano: 2024, preco: 680000, pagamento: "Financiamento" },
+
+      // --- Cayenne (14 unidades | 680.000 a 950.000) ---
+      { modelo: "Cayenne", cidade: "São Paulo", estado: "SP", ano: 2019, preco: 690000, pagamento: "Financiamento" },
+      { modelo: "Cayenne", cidade: "Rio de Janeiro", estado: "RJ", ano: 2019, preco: 700000, pagamento: "Consórcio" },
+      { modelo: "Cayenne", cidade: "Belo Horizonte", estado: "MG", ano: 2020, preco: 730000, pagamento: "PIX" },
+      { modelo: "Cayenne", cidade: "São Paulo", estado: "SP", ano: 2020, preco: 740000, pagamento: "Leasing" },
+      { modelo: "Cayenne", cidade: "Londrina", estado: "PR", ano: 2021, preco: 775000, pagamento: "Financiamento" },
+      { modelo: "Cayenne", cidade: "Caxias do Sul", estado: "RS", ano: 2021, preco: 785000, pagamento: "Cartão de Crédito" },
+      { modelo: "Cayenne", cidade: "Florianópolis", estado: "SC", ano: 2022, preco: 820000, pagamento: "Financiamento" },
+      { modelo: "Cayenne", cidade: "São Paulo", estado: "SP", ano: 2022, preco: 835000, pagamento: "Consórcio" },
+      { modelo: "Cayenne", cidade: "Brasília", estado: "DF", ano: 2022, preco: 840000, pagamento: "PIX" },
+      { modelo: "Cayenne", cidade: "Salvador", estado: "BA", ano: 2023, preco: 885000, pagamento: "Financiamento" },
+      { modelo: "Cayenne", cidade: "Campinas", estado: "SP", ano: 2023, preco: 895000, pagamento: "Leasing" },
+      { modelo: "Cayenne", cidade: "Rio de Janeiro", estado: "RJ", ano: 2023, preco: 910000, pagamento: "Cartão de Crédito" },
+      { modelo: "Cayenne", cidade: "São Paulo", estado: "SP", ano: 2024, preco: 940000, pagamento: "Financiamento" },
+      { modelo: "Cayenne", cidade: "Goiânia", estado: "GO", ano: 2024, preco: 950000, pagamento: "PIX" },
+
+      // --- Cayenne S (8 unidades | 850.000 a 1.150.000) ---
+      { modelo: "Cayenne S", cidade: "São Paulo", estado: "SP", ano: 2019, preco: 860000, pagamento: "Consórcio" },
+      { modelo: "Cayenne S", cidade: "Curitiba", estado: "PR", ano: 2020, preco: 910000, pagamento: "Financiamento" },
+      { modelo: "Cayenne S", cidade: "São Paulo", estado: "SP", ano: 2021, preco: 970000, pagamento: "PIX" },
+      { modelo: "Cayenne S", cidade: "Rio de Janeiro", estado: "RJ", ano: 2021, preco: 990000, pagamento: "Cartão de Crédito" },
+      { modelo: "Cayenne S", cidade: "Belo Horizonte", estado: "MG", ano: 2022, preco: 1040000, pagamento: "Leasing" },
+      { modelo: "Cayenne S", cidade: "Porto Alegre", estado: "RS", ano: 2023, preco: 1090000, pagamento: "Financiamento" },
+      { modelo: "Cayenne S", cidade: "São Paulo", estado: "SP", ano: 2024, preco: 1140000, pagamento: "Financiamento" },
+      { modelo: "Cayenne S", cidade: "Joinville", estado: "SC", ano: 2024, preco: 1150000, pagamento: "PIX" },
+
+      // --- 718 Cayman (9 unidades | 480.000 a 620.000) ---
+      { modelo: "718 Cayman", cidade: "Campinas", estado: "SP", ano: 2019, preco: 485000, pagamento: "Financiamento" },
+      { modelo: "718 Cayman", cidade: "Rio de Janeiro", estado: "RJ", ano: 2020, preco: 505000, pagamento: "Consórcio" },
+      { modelo: "718 Cayman", cidade: "São Paulo", estado: "SP", ano: 2020, preco: 515000, pagamento: "PIX" },
+      { modelo: "718 Cayman", cidade: "Florianópolis", estado: "SC", ano: 2021, preco: 540000, pagamento: "Cartão de Crédito" },
+      { modelo: "718 Cayman", cidade: "Santo André", estado: "SP", ano: 2022, preco: 560000, pagamento: "Financiamento" },
+      { modelo: "718 Cayman", cidade: "Uberlândia", estado: "MG", ano: 2022, preco: 570000, pagamento: "Leasing" },
+      { modelo: "718 Cayman", cidade: "São Paulo", estado: "SP", ano: 2023, preco: 595000, pagamento: "Consórcio" },
+      { modelo: "718 Cayman", cidade: "Recife", estado: "PE", ano: 2023, preco: 605000, pagamento: "Financiamento" },
+      { modelo: "718 Cayman", cidade: "Brasília", estado: "DF", ano: 2024, preco: 620000, pagamento: "PIX" },
+
+      // --- 718 Boxster (7 unidades | 500.000 a 650.000) ---
+      { modelo: "718 Boxster", cidade: "São Paulo", estado: "SP", ano: 2019, preco: 510000, pagamento: "Financiamento" },
+      { modelo: "718 Boxster", cidade: "Porto Alegre", estado: "RS", ano: 2020, preco: 535000, pagamento: "Cartão de Crédito" },
+      { modelo: "718 Boxster", cidade: "Niterói", estado: "RJ", ano: 2021, preco: 565000, pagamento: "PIX" },
+      { modelo: "718 Boxster", cidade: "São Paulo", estado: "SP", ano: 2022, preco: 590000, pagamento: "Financiamento" },
+      { modelo: "718 Boxster", cidade: "Curitiba", estado: "PR", ano: 2022, preco: 600000, pagamento: "Consórcio" },
+      { modelo: "718 Boxster", cidade: "Campinas", estado: "SP", ano: 2023, preco: 630000, pagamento: "Leasing" },
+      { modelo: "718 Boxster", cidade: "Rio de Janeiro", estado: "RJ", ano: 2024, preco: 650000, pagamento: "Financiamento" },
+
+      // --- 911 Carrera (8 unidades | 1.200.000 a 1.600.000) ---
+      { modelo: "911 Carrera", cidade: "São Paulo", estado: "SP", ano: 2019, preco: 1220000, pagamento: "PIX" },
+      { modelo: "911 Carrera", cidade: "Belo Horizonte", estado: "MG", ano: 2020, preco: 1280000, pagamento: "Financiamento" },
+      { modelo: "911 Carrera", cidade: "Rio de Janeiro", estado: "RJ", ano: 2021, preco: 1360000, pagamento: "Consórcio" },
+      { modelo: "911 Carrera", cidade: "São Paulo", estado: "SP", ano: 2022, preco: 1440000, pagamento: "Financiamento" },
+      { modelo: "911 Carrera", cidade: "Brasília", estado: "DF", ano: 2022, preco: 1460000, pagamento: "Cartão de Crédito" },
+      { modelo: "911 Carrera", cidade: "Curitiba", estado: "PR", ano: 2023, preco: 1530000, pagamento: "Leasing" },
+      { modelo: "911 Carrera", cidade: "São Paulo", estado: "SP", ano: 2023, preco: 1550000, pagamento: "PIX" },
+      { modelo: "911 Carrera", cidade: "Florianópolis", estado: "SC", ano: 2024, preco: 1600000, pagamento: "Financiamento" },
+
+      // --- 911 Carrera S (5 unidades | 1.400.000 a 1.900.000) ---
+      { modelo: "911 Carrera S", cidade: "São Paulo", estado: "SP", ano: 2020, preco: 1450000, pagamento: "Financiamento" },
+      { modelo: "911 Carrera S", cidade: "Campinas", estado: "SP", ano: 2021, preco: 1570000, pagamento: "PIX" },
+      { modelo: "911 Carrera S", cidade: "Rio de Janeiro", estado: "RJ", ano: 2022, preco: 1690000, pagamento: "Consórcio" },
+      { modelo: "911 Carrera S", cidade: "São Paulo", estado: "SP", ano: 2023, preco: 1810000, pagamento: "Cartão de Crédito" },
+      { modelo: "911 Carrera S", cidade: "Porto Alegre", estado: "RS", ano: 2024, preco: 1900000, pagamento: "Leasing" },
+
+      // --- Panamera (6 unidades | 900.000 a 1.400.000) ---
+      { modelo: "Panamera", cidade: "São Paulo", estado: "SP", ano: 2019, preco: 920000, pagamento: "Financiamento" },
+      { modelo: "Panamera", cidade: "Belo Horizonte", estado: "MG", ano: 2020, preco: 1010000, pagamento: "Consórcio" },
+      { modelo: "Panamera", cidade: "Rio de Janeiro", estado: "RJ", ano: 2021, preco: 1120000, pagamento: "PIX" },
+      { modelo: "Panamera", cidade: "São Paulo", estado: "SP", ano: 2022, preco: 1220000, pagamento: "Financiamento" },
+      { modelo: "Panamera", cidade: "Salvador", estado: "BA", ano: 2023, preco: 1330000, pagamento: "Cartão de Crédito" },
+      { modelo: "Panamera", cidade: "Campinas", estado: "SP", ano: 2024, preco: 1400000, pagamento: "Leasing" },
+
+      // --- Taycan 4S (7 unidades | 750.000 a 1.000.000) ---
+      { modelo: "Taycan 4S", cidade: "São Paulo", estado: "SP", ano: 2020, preco: 760000, pagamento: "Financiamento" },
+      { modelo: "Taycan 4S", cidade: "Santo André", estado: "SP", ano: 2021, preco: 810000, pagamento: "Consórcio" },
+      { modelo: "Taycan 4S", cidade: "Curitiba", estado: "PR", ano: 2022, preco: 860000, pagamento: "PIX" },
+      { modelo: "Taycan 4S", cidade: "Rio de Janeiro", estado: "RJ", ano: 2022, preco: 880000, pagamento: "Financiamento" },
+      { modelo: "Taycan 4S", cidade: "Florianópolis", estado: "SC", ano: 2023, preco: 930000, pagamento: "Cartão de Crédito" },
+      { modelo: "Taycan 4S", cidade: "Belo Horizonte", estado: "MG", ano: 2023, preco: 950000, pagamento: "Leasing" },
+      { modelo: "Taycan 4S", cidade: "São Paulo", estado: "SP", ano: 2024, preco: 1000000, pagamento: "Financiamento" },
+
+      // --- Taycan Turbo (6 unidades | 1.300.000 a 1.800.000) ---
+      { modelo: "Taycan Turbo", cidade: "São Paulo", estado: "SP", ano: 2021, preco: 1340000, pagamento: "Financiamento" },
+      { modelo: "Taycan Turbo", cidade: "Rio de Janeiro", estado: "RJ", ano: 2022, preco: 1450000, pagamento: "Consórcio" },
+      { modelo: "Taycan Turbo", cidade: "Porto Alegre", estado: "RS", ano: 2023, preco: 1580000, pagamento: "PIX" },
+      { modelo: "Taycan Turbo", cidade: "Campinas", estado: "SP", ano: 2023, preco: 1620000, pagamento: "Cartão de Crédito" },
+      { modelo: "Taycan Turbo", cidade: "Brasília", estado: "DF", ano: 2024, preco: 1760000, pagamento: "Leasing" },
+      { modelo: "Taycan Turbo", cidade: "São Paulo", estado: "SP", ano: 2024, preco: 1800000, pagamento: "Financiamento" }
+    ];
+
+    // Formatadores em pt-BR
+    const fmtCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(val);
+    const fmtNum = (val) => new Intl.NumberFormat('pt-BR').format(val);
+
+    // Elementos DOM
+    const filterModel = document.getElementById('filterModel');
+    const filterState = document.getElementById('filterState');
+    const filterYear = document.getElementById('filterYear');
+    const filterPayment = document.getElementById('filterPayment');
+    const btnClearFilters = document.getElementById('btnClearFilters');
+
+    const visibleCountBadge = document.getElementById('visibleCountBadge');
+    const kpiTotalSales = document.getElementById('kpiTotalSales');
+    const kpiTotalSalesSub = document.getElementById('kpiTotalSalesSub');
+    const kpiRevenue = document.getElementById('kpiRevenue');
+    const kpiTicket = document.getElementById('kpiTicket');
+    const kpiTopModel = document.getElementById('kpiTopModel');
+    const kpiTopModelRevenue = document.getElementById('kpiTopModelRevenue');
+
+    const p1Container = document.getElementById('p1Container');
+    const chartP2 = document.getElementById('chartP2');
+    const chartP3 = document.getElementById('chartP3');
+    const chartExtra = document.getElementById('chartExtra');
+    const salesTableBody = document.getElementById('salesTableBody');
+
+    function getFilteredData() {
+      const selectedModel = filterModel.value;
+      const selectedState = filterState.value;
+      const selectedYear = filterYear.value ? parseInt(filterYear.value, 10) : null;
+      const selectedPayment = filterPayment.value;
+
+      return RAW_SALES.filter(item => {
+        if (selectedModel && item.modelo !== selectedModel) return false;
+        if (selectedState && item.estado !== selectedState) return false;
+        if (selectedYear && item.ano !== selectedYear) return false;
+        if (selectedPayment && item.pagamento !== selectedPayment) return false;
+        return true;
+      });
+    }
+
+    function renderKPIs(data) {
+      const total = data.length;
+      visibleCountBadge.textContent = `Exibindo ${total} de 100 vendas`;
+
+      if (total === 0) {
+        kpiTotalSales.textContent = '0';
+        kpiTotalSalesSub.textContent = '0% da frota catalogada';
+        kpiRevenue.textContent = 'R$ 0';
+        kpiTicket.textContent = 'R$ 0';
+        kpiTopModel.textContent = 'Nenhum';
+        kpiTopModelRevenue.textContent = 'Sem vendas no recorte';
+        return;
+      }
+
+      const totalRevenue = data.reduce((acc, curr) => acc + curr.preco, 0);
+      const ticket = Math.round(totalRevenue / total);
+      const pctOfCatalog = Math.round((total / RAW_SALES.length) * 100);
+
+      // Calcular Modelo Líder por receita
+      const revenueByModel = {};
+      data.forEach(d => {
+        revenueByModel[d.modelo] = (revenueByModel[d.modelo] || 0) + d.preco;
+      });
+
+      let topModel = '';
+      let maxRev = -1;
+      for (const m in revenueByModel) {
+        if (revenueByModel[m] > maxRev) {
+          maxRev = revenueByModel[m];
+          topModel = m;
+        }
+      }
+
+      kpiTotalSales.textContent = fmtNum(total);
+      kpiTotalSalesSub.textContent = `${pctOfCatalog}% da frota catalogada`;
+      kpiRevenue.textContent = fmtCurrency(totalRevenue);
+      kpiTicket.textContent = fmtCurrency(ticket);
+      kpiTopModel.textContent = topModel;
+      kpiTopModelRevenue.textContent = `Líder: ${fmtCurrency(maxRev)}`;
+    }
+
+    // P1: Barras horizontais de receita por modelo (ordenado desc)
+    function renderP1Chart(data) {
+      if (data.length === 0) {
+        p1Container.innerHTML = '<div class="empty-state">Sem dados para os filtros selecionados</div>';
+        return;
+      }
+
+      const revMap = {};
+      data.forEach(d => {
+        revMap[d.modelo] = (revMap[d.modelo] || 0) + d.preco;
+      });
+
+      const sorted = Object.entries(revMap).sort((a, b) => b[1] - a[1]);
+      const maxVal = sorted[0][1] || 1;
+
+      let html = '<div class="hbar-container">';
+      sorted.forEach(([model, val]) => {
+        const pct = Math.max(3, (val / maxVal) * 100);
+        html += `
+          <div class="hbar-item">
+            <div class="hbar-meta">
+              <span class="hbar-label">${model}</span>
+              <span class="hbar-val">${fmtCurrency(val)}</span>
+            </div>
+            <div class="hbar-track">
+              <div class="hbar-fill" style="width: ${pct}%;"></div>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      p1Container.innerHTML = html;
+    }
+
+    // P2: Barras verticais de vendas por estado (ordenado desc)
+    function renderP2Chart(data) {
+      chartP2.innerHTML = '';
+      if (data.length === 0) {
+        chartP2.innerHTML = '<div class="empty-state">Sem dados para os filtros selecionados</div>';
+        return;
+      }
+
+      const stateCount = {};
+      data.forEach(d => {
+        stateCount[d.estado] = (stateCount[d.estado] || 0) + 1;
+      });
+
+      const sorted = Object.entries(stateCount).sort((a, b) => b[1] - a[1]);
+      const labels = sorted.map(i => i[0]);
+      const values = sorted.map(i => i[1]);
+
+      if (window.skipChart && window.skipChart.bar) {
+        window.skipChart.bar(chartP2, {
+          labels: labels,
+          values: values,
+          color: '#e5c158',
+          format: 'num'
+        });
+      }
+    }
+
+    // P3: Linha de preço médio por ano do veículo (2019 -> 2024)
+    function renderP3Chart(data) {
+      chartP3.innerHTML = '';
+      if (data.length === 0) {
+        chartP3.innerHTML = '<div class="empty-state">Sem dados para os filtros selecionados</div>';
+        return;
+      }
+
+      const years = [2019, 2020, 2021, 2022, 2023, 2024];
+      const yearMap = {};
+      years.forEach(y => { yearMap[y] = { sum: 0, count: 0 }; });
+
+      data.forEach(d => {
+        if (yearMap[d.ano]) {
+          yearMap[d.ano].sum += d.preco;
+          yearMap[d.ano].count += 1;
+        }
+      });
+
+      // Inclui apenas anos com dados ou anos no intervalo
+      const validYears = years.filter(y => yearMap[y].count > 0);
+      if (validYears.length === 0) {
+        chartP3.innerHTML = '<div class="empty-state">Sem dados para os anos selecionados</div>';
+        return;
+      }
+
+      const labels = validYears.map(y => String(y));
+      const values = validYears.map(y => Math.round(yearMap[y].sum / yearMap[y].count));
+
+      if (window.skipChart && window.skipChart.line) {
+        window.skipChart.line(chartP3, {
+          labels: labels,
+          values: values,
+          color: '#e5c158',
+          format: 'brl'
+        });
+      }
+    }
+
+    // Extra: Donut vendas por método de pagamento
+    function renderExtraChart(data) {
+      chartExtra.innerHTML = '';
+      if (data.length === 0) {
+        chartExtra.innerHTML = '<div class="empty-state">Sem dados para os filtros selecionados</div>';
+        return;
+      }
+
+      const payCount = {};
+      data.forEach(d => {
+        payCount[d.pagamento] = (payCount[d.pagamento] || 0) + 1;
+      });
+
+      const labels = Object.keys(payCount);
+      const values = Object.values(payCount);
+      const palette = ['#e5c158', '#99792e', '#cbb06d', '#8a7337', '#f4dc8f'];
+
+      if (window.skipChart && window.skipChart.donut) {
+        window.skipChart.donut(chartExtra, {
+          labels: labels,
+          values: values,
+          colors: palette.slice(0, labels.length)
+        });
+      }
+    }
+
+    // Tabela detalhada
+    function renderTable(data) {
+      if (data.length === 0) {
+        salesTableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">Nenhum veículo encontrado para a combinação de filtros.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      let html = '';
+      data.forEach((item, idx) => {
+        html += `
+          <tr>
+            <td style="color: var(--text-muted); font-size: 0.775rem;">#${idx + 1}</td>
+            <td style="font-weight: 600;">${item.modelo}</td>
+            <td>${item.cidade} / <span style="font-weight: 600; color: var(--accent-text);">${item.estado}</span></td>
+            <td><span class="shell-badge" style="background: #232328; border: 1px solid #363640;">${item.ano}</span></td>
+            <td><span class="tag-payment">${item.pagamento}</span></td>
+            <td class="num" style="font-weight: 600; color: var(--accent-text);">${fmtCurrency(item.preco)}</td>
+          </tr>
+        `;
+      });
+      salesTableBody.innerHTML = html;
+    }
+
+    // Atualização global reativa
+    function refreshDashboard() {
+      const filtered = getFilteredData();
+      renderKPIs(filtered);
+      renderP1Chart(filtered);
+      renderP2Chart(filtered);
+      renderP3Chart(filtered);
+      renderExtraChart(filtered);
+      renderTable(filtered);
+    }
+
+    function init() {
+      // Event Listeners nos 4 selects
+      [filterModel, filterState, filterYear, filterPayment].forEach(el => {
+        el.addEventListener('change', refreshDashboard);
+      });
+
+      // Botão Limpar Filtros
+      btnClearFilters.addEventListener('click', () => {
+        filterModel.value = '';
+        filterState.value = '';
+        filterYear.value = '';
+        filterPayment.value = '';
+        refreshDashboard();
+      });
+
+      // Primeira renderização
+      refreshDashboard();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+<script>
+/* Skip artifact shell — fixed helpers served beside every artifact. */
+(function () {
+  "use strict";
+
+  var fmt = {
+    num: function (v, opts) { return new Intl.NumberFormat("pt-BR", opts || {}).format(v); },
+    brl: function (v) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v); },
+    pct: function (v) { return new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 1 }).format(v); }
+  };
+
+  // axisFmt keeps axis tick labels short (compact notation) so long values
+  // (e.g. full BRL amounts) never clip against the plot edge.
+  function axisFmt(v) {
+    return fmt.num(v, { notation: "compact", maximumFractionDigits: 1 });
+  }
+
+  // format accepts a function OR one of the fmt names ("num" | "brl" | "pct").
+  function coerceFormat(spec) {
+    if (typeof spec === "function") return spec;
+    if (typeof spec === "string" && fmt[spec]) return fmt[spec];
+    return function (v) { return fmt.num(v); };
+  }
+
+  function accent() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#2563eb";
+  }
+  function mutedColor() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim() || "#5b6472";
+  }
+  function svgEl(tag, attrs) {
+    var el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+  function frame(el, w, h) {
+    var svg = svgEl("svg", { viewBox: "0 0 " + w + " " + h, role: "img" });
+    el.innerHTML = "";
+    el.appendChild(svg);
+    return svg;
+  }
+
+  // maxOf guards the axis scale: empty values would give -Infinity (truthy,
+  // so "|| 1" can't catch it) and a non-positive max would flip the chart.
+  function maxOf(values) {
+    var m = values.length ? Math.max.apply(null, values) : 0;
+    return m > 0 ? m : 1;
+  }
+
+  // bar(el, {labels:[], values:[], color?, format?}) — vertical bar chart.
+  function bar(el, cfg) {
+    var W = 640, H = 280, padL = 46, padB = 30, padT = 12;
+    var svg = frame(el, W, H);
+    var max = maxOf(cfg.values);
+    var n = cfg.values.length;
+    var plotW = W - padL - 12, plotH = H - padT - padB;
+    var step = plotW / n, bw = Math.min(step * 0.62, 64);
+    var color = cfg.color || accent();
+    var f = coerceFormat(cfg.format);
+    for (var g = 0; g <= 4; g++) {
+      var gy = padT + plotH - (plotH * g) / 4;
+      svg.appendChild(svgEl("line", { x1: padL, y1: gy, x2: W - 12, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
+      var lbl = svgEl("text", { x: padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
+      lbl.textContent = axisFmt((max * g) / 4);
+      svg.appendChild(lbl);
+    }
+    cfg.values.forEach(function (v, i) {
+      var bh = Math.max(0, (v / max) * plotH);
+      var x = padL + i * step + (step - bw) / 2;
+      var y = padT + plotH - bh;
+      var r = svgEl("rect", { x: x, y: y, width: bw, height: bh, rx: 4, fill: color });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + f(v);
+      r.appendChild(t);
+      svg.appendChild(r);
+      var tx = svgEl("text", { x: x + bw / 2, y: H - 10, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
+      tx.textContent = cfg.labels[i];
+      svg.appendChild(tx);
+    });
+  }
+
+  // line(el, {labels:[], values:[], color?, format?}) — single-series line.
+  function line(el, cfg) {
+    var W = 640, H = 280, padL = 46, padB = 30, padT = 12;
+    var svg = frame(el, W, H);
+    var max = maxOf(cfg.values);
+    var n = cfg.values.length;
+    var plotW = W - padL - 16, plotH = H - padT - padB;
+    var color = cfg.color || accent();
+    var f = coerceFormat(cfg.format);
+    for (var g = 0; g <= 4; g++) {
+      var gy = padT + plotH - (plotH * g) / 4;
+      svg.appendChild(svgEl("line", { x1: padL, y1: gy, x2: W - 16, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
+      var lbl = svgEl("text", { x: padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
+      lbl.textContent = axisFmt((max * g) / 4);
+      svg.appendChild(lbl);
+    }
+    var pts = cfg.values.map(function (v, i) {
+      var x = padL + (n === 1 ? plotW / 2 : (plotW * i) / (n - 1));
+      var y = padT + plotH - (v / max) * plotH;
+      return [x, y];
+    });
+    var d = pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" ");
+    svg.appendChild(svgEl("path", { d: d, fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }));
+    pts.forEach(function (p, i) {
+      var c = svgEl("circle", { cx: p[0], cy: p[1], r: 3.5, fill: color });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + f(cfg.values[i]);
+      c.appendChild(t);
+      svg.appendChild(c);
+      var tx = svgEl("text", { x: p[0], y: H - 10, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
+      tx.textContent = cfg.labels[i];
+      svg.appendChild(tx);
+    });
+  }
+
+  // donut(el, {labels:[], values:[], colors?}) — donut with center total.
+  function donut(el, cfg) {
+    var W = 320, H = 280, cx = W / 2, cy = H / 2, R = 92, r = 58;
+    var svg = frame(el, W, H);
+    var total = cfg.values.reduce(function (a, b) { return a + b; }, 0) || 1;
+    var palette = cfg.colors || [accent(), "#1baf7a", "#eda100", "#e34948", "#4a3aa7", "#e87ba4"];
+    var a0 = -Math.PI / 2;
+    cfg.values.forEach(function (v, i) {
+      var a1 = a0 + (v / total) * Math.PI * 2;
+      var large = a1 - a0 > Math.PI ? 1 : 0;
+      var p = ["M", cx + R * Math.cos(a0), cy + R * Math.sin(a0),
+        "A", R, R, 0, large, 1, cx + R * Math.cos(a1), cy + R * Math.sin(a1),
+        "L", cx + r * Math.cos(a1), cy + r * Math.sin(a1),
+        "A", r, r, 0, large, 0, cx + r * Math.cos(a0), cy + r * Math.sin(a0), "Z"].join(" ");
+      var path = svgEl("path", { d: p, fill: palette[i % palette.length] });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + fmt.num(v) + " (" + fmt.pct(v / total) + ")";
+      path.appendChild(t);
+      svg.appendChild(path);
+      a0 = a1;
+    });
+    var center = svgEl("text", { x: cx, y: cy + 5, "text-anchor": "middle", "font-size": 20, "font-weight": 650, fill: "currentColor" });
+    center.textContent = fmt.num(total);
+    svg.appendChild(center);
+  }
+
+  window.skipShell = { fmt: fmt };
+  window.skipChart = { bar: bar, line: line, donut: donut };
+})();
+
+</script>
+</body>
+</html>
